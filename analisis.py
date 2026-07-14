@@ -6,7 +6,24 @@ Nota importante: las reglas de angulo de rodilla usadas aqui son
 simplificadas con fines educativos/de prototipo, no son un estandar
 medico ni de biomecanica deportiva certificado. Sirven como punto de
 partida para ir afinando con la ayuda de un entrenador o fisioterapeuta.
+
+Nota sobre los ejercicios sugeridos: son ejercicios sencillos y de bajo
+riesgo (movilidad, tecnica de aterrizaje, fuerza con el propio peso
+corporal, y una opcion pliometrica ligera de bajo impacto: saltos suaves
+sin caida fuerte), pensados para hacerse en casa. No incluyen pliometria
+intensa ni cargas externas. Solo se sugieren cuando el angulo detectado
+esta fuera del rango ideal para la edad del jugador.
 """
+
+AVISO_EJERCICIOS = (
+    "Aviso: estos ejercicios son orientativos y no sustituyen una valoracion profesional. "
+    "Lo ideal es hacerlos con la supervision de un entrenador o preparador fisico."
+)
+
+MENCION_FIFA11 = (
+    "Como referencia fiable y gratuita, el programa oficial FIFA 11+ ofrece una rutina completa "
+    "de prevencion de lesiones para futbolistas jovenes; puede ser buena idea consultarlo con su entrenador."
+)
 
 
 def rango_ideal_por_edad(edad):
@@ -80,6 +97,7 @@ def analizar_chut(edad, peso, posicion, angulo_rodilla):
     angulo_min, angulo_max = rango_ideal_por_edad(edad)
 
     recomendaciones = []
+    hay_ejercicios = False
 
     # 1. Comprobamos el angulo de la rodilla contra el rango ideal para su edad
     if angulo_rodilla < angulo_min:
@@ -88,12 +106,32 @@ def analizar_chut(edad, peso, posicion, angulo_rodilla):
             f"Para su edad se espera algo entre {angulo_min} y {angulo_max} grados. "
             "Sugerencia: trabajar el golpeo con la pierna algo mas extendida para ganar potencia y precision."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) balanceos de pierna controlados apoyado en una pared, sin balon, buscando el rango completo de la cadera; "
+            "2) sentadilla a una pierna asistida (apoyado en silla o pared), para ganar fuerza y equilibrio en la pierna de apoyo; "
+            "3) repetir el gesto de chut despacio frente a un espejo, sin balon, exagerando la extension final de la rodilla; "
+            "4) saltos suaves con los dos pies juntos, sin desplazamiento, aterrizando de puntillas y con las rodillas "
+            "ligeramente flexionadas (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     elif angulo_rodilla > angulo_max:
         recomendaciones.append(
             f"La rodilla esta demasiado extendida ({angulo_rodilla:.0f} grados) para su edad "
             f"(rango esperado {angulo_min}-{angulo_max} grados). "
             "Sugerencia: flexionar un poco mas la rodilla en el momento del impacto para mejorar el control del balon."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) sentadilla a dos piernas con pausa de 2-3 segundos abajo, para ganar control de la flexion; "
+            "2) zancada estatica (split squat) sin peso; "
+            "3) chut en seco frente al espejo, deteniendo conscientemente el movimiento en el punto de flexion deseado; "
+            "4) saltos suaves en el sitio, aterrizando y manteniendo 1-2 segundos la posicion de rodillas flexionadas "
+            "al caer (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     else:
         recomendaciones.append(
             f"El angulo de rodilla ({angulo_rodilla:.0f} grados) esta dentro del rango esperado "
@@ -121,6 +159,10 @@ def analizar_chut(edad, peso, posicion, angulo_rodilla):
                 "de apoyo durante el golpeo para prevenir molestias."
             )
 
+    # 4. Aviso de supervision, una sola vez, solo si se sugirieron ejercicios
+    if hay_ejercicios:
+        recomendaciones.append(AVISO_EJERCICIOS)
+
     # Unimos todas las recomendaciones en un solo texto, una por linea
     return "\n".join(recomendaciones)
 
@@ -144,6 +186,7 @@ def analizar_pase(edad, peso, posicion, angulo_pie_apoyo):
     desviacion_max = desviacion_maxima_pie_apoyo_por_edad(edad)
 
     recomendaciones = []
+    hay_ejercicios = False
 
     # 1. Comprobamos la desviacion del pie de apoyo contra el maximo aceptable para su edad
     if angulo_pie_apoyo > desviacion_max:
@@ -152,6 +195,18 @@ def analizar_pase(edad, peso, posicion, angulo_pie_apoyo):
             f"por encima de lo esperado para su edad (maximo {desviacion_max} grados). "
             "Sugerencia: trabajar la orientacion del pie de apoyo apuntando hacia el companero antes de golpear el balon."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) colocar un cono o marca en el suelo simulando al companero, y practicar plantar el pie de apoyo "
+            "apuntando hacia ella, sin balon; "
+            "2) equilibrio sobre el pie de apoyo 20-30 segundos, para ganar estabilidad; "
+            "3) pases cortos contra una pared apuntando a un objetivo marcado, prestando atencion consciente "
+            "a la orientacion del pie de apoyo; "
+            "4) saltos suaves a la pata coja sobre el pie de apoyo, aterrizando en el mismo sitio y buscando "
+            "estabilizar la orientacion del pie nada mas tocar el suelo (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     else:
         recomendaciones.append(
             f"El pie de apoyo se desvia solo {angulo_pie_apoyo:.0f} grados de la direccion del pase, "
@@ -169,6 +224,10 @@ def analizar_pase(edad, peso, posicion, angulo_pie_apoyo):
             "Como centrocampista, el pase es su gesto mas repetido; "
             "conviene priorizar este trabajo de orientacion del pie de apoyo sobre otros gestos."
         )
+
+    # 3. Aviso de supervision, una sola vez, solo si se sugirieron ejercicios
+    if hay_ejercicios:
+        recomendaciones.append(AVISO_EJERCICIOS)
 
     # Unimos todas las recomendaciones en un solo texto, una por linea
     return "\n".join(recomendaciones)
@@ -192,6 +251,7 @@ def analizar_control(edad, peso, posicion, angulo_tobillo):
     angulo_min, angulo_max = rango_ideal_tobillo_control_por_edad(edad)
 
     recomendaciones = []
+    hay_ejercicios = False
 
     # 1. Comprobamos el angulo de tobillo contra el rango ideal para su edad
     if angulo_tobillo < angulo_min:
@@ -200,12 +260,34 @@ def analizar_control(edad, peso, posicion, angulo_tobillo):
             f"Para su edad se espera algo entre {angulo_min} y {angulo_max} grados. "
             "Sugerencia: relajar y flexionar algo mas el tobillo al recibir el balon para amortiguarlo mejor."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) circulos de tobillo en ambos sentidos, sentado o de pie; "
+            "2) elevaciones de talon lentas (sin salto), sintiendo el control de la flexion; "
+            "3) recibir un balon lanzado suavemente contra una pared, practicando ceder el tobillo al contacto "
+            "en vez de bloquearlo; "
+            "4) saltos suaves a la comba, sin comba real si no se tiene, aterrizando de puntillas y dejando "
+            "que el tobillo ceda un poco al contacto (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     elif angulo_tobillo > angulo_max:
         recomendaciones.append(
             f"El tobillo esta demasiado relajado/flexionado ({angulo_tobillo:.0f} grados) para su edad "
             f"(rango esperado {angulo_min}-{angulo_max} grados). "
             "Sugerencia: mantener algo mas de tension en el tobillo para no perder estabilidad al controlar."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) equilibrio a un pie sobre una superficie firme y estable, para ganar estabilidad; "
+            "2) elevaciones de talon (calf raises) con el propio peso corporal; "
+            "3) practicar el control buscando un punto intermedio: amortiguar el balon sin dejar que el pie "
+            "ceda en exceso; "
+            "4) saltos suaves con los dos pies, aterrizando y manteniendo el equilibrio estatico 2 segundos, "
+            "buscando un aterrizaje mas firme y controlado (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     else:
         recomendaciones.append(
             f"El angulo de tobillo ({angulo_tobillo:.0f} grados) esta dentro del rango esperado "
@@ -223,6 +305,10 @@ def analizar_control(edad, peso, posicion, angulo_tobillo):
             "Como delantero, conviene trabajar el control orientado hacia el espacio o la porteria, "
             "no solo amortiguar el balon."
         )
+
+    # 3. Aviso de supervision, una sola vez, solo si se sugirieron ejercicios
+    if hay_ejercicios:
+        recomendaciones.append(AVISO_EJERCICIOS)
 
     # Unimos todas las recomendaciones en un solo texto, una por linea
     return "\n".join(recomendaciones)
@@ -265,6 +351,7 @@ def analizar_regate(edad, peso, posicion, angulo_rodilla):
     angulo_min, angulo_max = rango_ideal_rodilla_regate_por_edad(edad)
 
     recomendaciones = []
+    hay_ejercicios = False
 
     # 1. Comprobamos el angulo de rodilla contra el rango ideal para su edad
     if angulo_rodilla < angulo_min:
@@ -273,12 +360,33 @@ def analizar_regate(edad, peso, posicion, angulo_rodilla):
             f"Para su edad se espera algo entre {angulo_min} y {angulo_max} grados. "
             "Sugerencia: no bajar tanto el centro de gravedad para no perder velocidad de reaccion en el siguiente apoyo."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) desde una flexion moderada, practicar cambios de apoyo rapidos sin saltar; "
+            "2) recorrer una cuadricula dibujada en el suelo con apoyos cortos, sin balon; "
+            "3) sombra del regate (shadow dribbling) sin balon frente al espejo, controlando cuanto se flexiona "
+            "la rodilla de apoyo; "
+            "4) saltos laterales suaves de un pie al otro, sin desplazamiento amplio, aterrizando ligero "
+            "(pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     elif angulo_rodilla > angulo_max:
         recomendaciones.append(
             f"La rodilla esta demasiado extendida ({angulo_rodilla:.0f} grados) para su edad "
             f"(rango esperado {angulo_min}-{angulo_max} grados) durante el cambio de direccion. "
             "Sugerencia: flexionar mas la rodilla de apoyo para ganar equilibrio y proteger mejor el balon."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) sentadilla a una pierna asistida (apoyo en pared o silla); "
+            "2) zancadas laterales controladas, sin peso; "
+            "3) practicar el cambio de direccion caminando (no corriendo), exagerando la flexion en cada apoyo; "
+            "4) saltos suaves de un apoyo a otro (lado a lado), aterrizando con la rodilla flexionada y "
+            "manteniendo el equilibrio 1-2 segundos antes del siguiente salto (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     else:
         recomendaciones.append(
             f"El angulo de rodilla de apoyo ({angulo_rodilla:.0f} grados) esta dentro del rango esperado "
@@ -295,6 +403,10 @@ def analizar_regate(edad, peso, posicion, angulo_rodilla):
         recomendaciones.append(
             "Como centrocampista, el regate ayuda a superar la presion rival y progresar el balon en zonas de mucho trafico."
         )
+
+    # 3. Aviso de supervision, una sola vez, solo si se sugirieron ejercicios
+    if hay_ejercicios:
+        recomendaciones.append(AVISO_EJERCICIOS)
 
     # Unimos todas las recomendaciones en un solo texto, una por linea
     return "\n".join(recomendaciones)
@@ -337,6 +449,7 @@ def analizar_saque_banda(edad, peso, posicion, angulo_codo):
     angulo_min, angulo_max = rango_ideal_codo_saque_banda_por_edad(edad)
 
     recomendaciones = []
+    hay_ejercicios = False
 
     # 1. Comprobamos el angulo de codo contra el rango ideal para su edad
     if angulo_codo < angulo_min:
@@ -346,12 +459,34 @@ def analizar_saque_banda(edad, peso, posicion, angulo_codo):
             "Sugerencia: llevar el balon bien atras y por encima de la cabeza, y extender completamente ambos "
             "brazos antes de soltarlo, para ganar potencia y evitar una posible falta por saque incompleto."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) movilidad de hombros con rotaciones de hombro y brazos en cruz contra la pared; "
+            "2) repetir el gesto completo del saque sin balon (o con un balon muy ligero) frente al espejo, "
+            "exagerando la extension de ambos codos; "
+            "3) fondos de brazos suaves apoyado de rodillas, para fortalecer con control; "
+            "4) saltos suaves con los dos brazos elevados por encima de la cabeza sosteniendo el balon (sin "
+            "lanzarlo), aterrizando ligero, para asociar la extension de brazos con un gesto explosivo "
+            "controlado (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     elif angulo_codo > angulo_max:
         recomendaciones.append(
             f"El codo supera el rango tipico de extension para su edad ({angulo_codo:.0f} grados, "
             f"rango esperado {angulo_min}-{angulo_max} grados). "
             "Sugerencia: revisar que no se este forzando la articulacion del codo al final del lanzamiento."
         )
+        recomendaciones.append(
+            "Ejercicios sugeridos para trabajar esto en casa: "
+            "1) movilidad de hombro/codo con control excentrico, bajando el brazo despacio desde arriba; "
+            "2) repetir el gesto completo frenando conscientemente justo antes de la extension maxima, "
+            "sin forzar la articulacion; "
+            "3) saltos suaves sosteniendo el balon arriba, controlando la extension de brazos sin bloquear "
+            "los codos al aterrizar (pliometria ligera, sin caida fuerte)."
+        )
+        recomendaciones.append(MENCION_FIFA11)
+        hay_ejercicios = True
     else:
         recomendaciones.append(
             f"El codo alcanza una buena extension al soltar el balon ({angulo_codo:.0f} grados), "
@@ -369,6 +504,10 @@ def analizar_saque_banda(edad, peso, posicion, angulo_codo):
             "Como defensa, un saque de banda largo y bien ejecutado puede ser una forma rapida "
             "de progresar el balon desde zonas cercanas a su propia area."
         )
+
+    # 3. Aviso de supervision, una sola vez, solo si se sugirieron ejercicios
+    if hay_ejercicios:
+        recomendaciones.append(AVISO_EJERCICIOS)
 
     # Unimos todas las recomendaciones en un solo texto, una por linea
     return "\n".join(recomendaciones)
