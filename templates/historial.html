@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Coach Fútbol - Historial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Karla:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page">
+        <p class="brand">⚽ Coach de Fútbol</p>
+        <div class="card">
+            <div class="card__header">
+                <p class="card__eyebrow">Análisis guardados</p>
+                <h1 class="card__title card__title--result">Historial</h1>
+            </div>
+            <div class="card__body">
+                {% if not entradas %}
+                    <p>Todavía no hay ningún análisis guardado. <a href="/">Sube tu primer vídeo</a>.</p>
+                {% else %}
+                    <div class="historial-list">
+                        {% for entrada in entradas %}
+                        {% set registro = entrada.registro %}
+                        <div class="historial-item">
+                            <div class="historial-item__top">
+                                <span class="gesto-badge gesto-badge--inline">{{ registro.icono_gesto }} {{ registro.etiqueta_gesto }}</span>
+                                <span class="historial-item__fecha">{{ registro.fecha_hora }}</span>
+                            </div>
+
+                            <div class="player-chips">
+                                <span class="player-chip">{{ registro.edad }} años</span>
+                                <span class="player-chip">{{ registro.peso }} kg</span>
+                                <span class="player-chip">{{ registro.posicion|capitalize }}</span>
+                            </div>
+
+                            <div class="stat-row">
+                                <p class="stat__label">{{ registro.etiqueta_angulo }}</p>
+                                <p class="stat__value stat__value--small">{{ "%.0f"|format(registro.angulo) }}°</p>
+                                <p class="stat__caption">detectado en el segundo {{ "%.1f"|format(registro.segundo) }} del vídeo</p>
+                            </div>
+
+                            {% set lineas = entrada.lineas %}
+                            {% include "_status_list.html" %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="page-links">
+            <a href="/" class="back-link">&larr; Volver al formulario</a>
+        </div>
+    </div>
+</body>
+</html>

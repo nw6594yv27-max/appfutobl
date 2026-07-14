@@ -40,24 +40,14 @@
                         <p class="stat__caption">detectado en el segundo {{ "%.1f"|format(segundo) }} del vídeo</p>
                     </div>
 
-                    <div class="status-list">
-                        {% for linea in lineas %}
-                        <div class="status-chip status-chip--{{ linea.estado }}">
-                            {% if linea.estado == "success" %}
-                                <span class="status-icon status-icon--circle is-success">✓</span>
-                            {% elif linea.estado == "info" %}
-                                <span class="status-icon status-icon--circle is-info">i</span>
-                            {% else %}
-                                <span class="status-icon status-icon--card is-warning"></span>
-                            {% endif %}
-                            <span>{{ linea.texto }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
+                    {% include "_status_list.html" %}
                 {% endif %}
             </div>
         </div>
-        <a href="/" class="back-link">&larr; Analizar otro vídeo</a>
+        <div class="page-links">
+            <a href="/" class="back-link">&larr; Analizar otro vídeo</a>
+            <a href="/historial" class="back-link">📜 Ver historial</a>
+        </div>
     </div>
 </body>
 </html>

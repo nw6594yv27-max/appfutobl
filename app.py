@@ -18,12 +18,14 @@ from analizar_video import (
     angulo_tobillo_derecho,
     angulo_codo_derecho,
 )
+from historial import inicializar_db, guardar_analisis, obtener_historial
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 ALLOWED_EXTENSIONS = {"mp4", "mov", "avi", "mkv"}
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+inicializar_db()
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -152,6 +154,19 @@ def upload_video():
 
     recomendacion = config["analizar"](edad, peso, posicion, angulo)
 
+    guardar_analisis(
+        gesto=gesto,
+        icono_gesto=config["icono"],
+        etiqueta_gesto=config["etiqueta"],
+        etiqueta_angulo=config["etiqueta_angulo"],
+        edad=edad,
+        peso=peso,
+        posicion=posicion,
+        angulo=angulo,
+        segundo=segundo,
+        recomendacion=recomendacion,
+    )
+
     return render_template(
         "resultado.html",
         etiqueta_gesto=config["etiqueta"],
@@ -164,6 +179,16 @@ def upload_video():
         peso=peso,
         posicion=posicion,
     )
+
+
+@app.route("/historial")
+def historial():
+    registros = obtener_historial()
+    entradas = [
+        {"registro": registro, "lineas": clasificar_lineas(registro["recomendacion"])}
+        for registro in registros
+    ]
+    return render_template("historial.html", entradas=entradas)
 
 
 if __name__ == "__main__":

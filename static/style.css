@@ -468,3 +468,68 @@ a:focus-visible {
   font-size: 0.9rem;
   text-decoration: none;
 }
+
+.page-links {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.card__body a {
+  color: var(--turf-700);
+  font-weight: 700;
+}
+
+:root[data-theme="dark"] .card__body a {
+  color: var(--turf-300);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .card__body a {
+    color: var(--turf-300);
+  }
+}
+
+/* ---- Historial ---- */
+
+.historial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.historial-item {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.historial-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.historial-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.gesto-badge--inline {
+  background: var(--turf-700);
+  border: none;
+  color: #FFFFFE;
+}
+
+.historial-item__fecha {
+  font-family: "Space Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.stat__value--small {
+  font-size: 1.5rem;
+}

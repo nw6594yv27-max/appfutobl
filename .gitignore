@@ -7,3 +7,6 @@ __pycache__/
 modelos/
 videos/
 uploads/
+
+# Historial de analisis (datos personales de jugadores, no se versiona)
+historial.db

@@ -1,0 +1,14 @@
+<div class="status-list">
+    {% for linea in lineas %}
+    <div class="status-chip status-chip--{{ linea.estado }}">
+        {% if linea.estado == "success" %}
+            <span class="status-icon status-icon--circle is-success">✓</span>
+        {% elif linea.estado == "info" %}
+            <span class="status-icon status-icon--circle is-info">i</span>
+        {% else %}
+            <span class="status-icon status-icon--card is-warning"></span>
+        {% endif %}
+        <span>{{ linea.texto }}</span>
+    </div>
+    {% endfor %}
+</div>
