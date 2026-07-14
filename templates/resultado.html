@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Coach Fútbol - Resultado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Karla:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page">
+        <p class="brand">⚽ Coach de Fútbol</p>
+        <div class="card">
+            <div class="card__header">
+                <span class="gesto-badge">{{ icono_gesto }} {{ etiqueta_gesto }}</span>
+                <h1 class="card__title card__title--result">
+                    {% if error %}No se pudo analizar{% else %}Informe del gesto{% endif %}
+                </h1>
+            </div>
+            <div class="card__body">
+                {% if error %}
+                    <div class="status-list">
+                        <div class="status-chip status-chip--error">
+                            <span class="status-icon status-icon--card is-error"></span>
+                            <span>{{ error }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="player-chips">
+                        <span class="player-chip">{{ edad }} años</span>
+                        <span class="player-chip">{{ peso }} kg</span>
+                        <span class="player-chip">{{ posicion|capitalize }}</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <p class="stat__label">{{ etiqueta_angulo }}</p>
+                        <p class="stat__value">{{ "%.0f"|format(angulo) }}°</p>
+                        <p class="stat__caption">detectado en el segundo {{ "%.1f"|format(segundo) }} del vídeo</p>
+                    </div>
+
+                    <div class="status-list">
+                        {% for linea in lineas %}
+                        <div class="status-chip status-chip--{{ linea.estado }}">
+                            {% if linea.estado == "success" %}
+                                <span class="status-icon status-icon--circle is-success">✓</span>
+                            {% elif linea.estado == "info" %}
+                                <span class="status-icon status-icon--circle is-info">i</span>
+                            {% else %}
+                                <span class="status-icon status-icon--card is-warning"></span>
+                            {% endif %}
+                            <span>{{ linea.texto }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <a href="/" class="back-link">&larr; Analizar otro vídeo</a>
+    </div>
+</body>
+</html>

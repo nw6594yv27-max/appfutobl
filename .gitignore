@@ -6,3 +6,4 @@ __pycache__/
 # Modelo de MediaPipe (descargable de nuevo) y videos de prueba (pesados / datos personales)
 modelos/
 videos/
+uploads/
