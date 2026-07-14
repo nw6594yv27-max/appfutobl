@@ -1,7 +1,9 @@
 import os
 import time
+import uuid
+from datetime import timedelta
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 from werkzeug.utils import secure_filename
 
 from analisis import (
@@ -29,6 +31,21 @@ inicializar_db()
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+# Necesaria para firmar la cookie de sesion (el usuario_id que separa el
+# historial de cada navegador). En produccion hay que definir la variable de
+# entorno FLASK_SECRET_KEY; el valor por defecto solo vale para desarrollo
+# local y no debe usarse una vez desplegada la web.
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "clave-dev-insegura-cambiar-en-produccion")
+app.permanent_session_lifetime = timedelta(days=365)
+
+
+@app.before_request
+def asegurar_usuario_id():
+    session.permanent = True
+    if "usuario_id" not in session:
+        session["usuario_id"] = str(uuid.uuid4())
+
 
 # Config de cada gesto: como se busca el angulo en el video (procesar_video_angulo
 # necesita el "tipo_extremo" y la funcion que extrae el angulo por fotograma) y
@@ -141,6 +158,14 @@ def upload_video():
         filepath, config["tipo_extremo"], config["extraer_angulo"]
     )
 
+    # Ya no hace falta conservar el video: el resultado del analisis se
+    # guarda en el historial, y el propio video puede contener imagenes
+    # sensibles de la persona grabada.
+    try:
+        os.remove(filepath)
+    except OSError:
+        pass
+
     if angulo is None:
         return render_template(
             "resultado.html",
@@ -155,6 +180,7 @@ def upload_video():
     recomendacion = config["analizar"](edad, peso, posicion, angulo)
 
     guardar_analisis(
+        usuario_id=session["usuario_id"],
         gesto=gesto,
         icono_gesto=config["icono"],
         etiqueta_gesto=config["etiqueta"],
@@ -183,7 +209,7 @@ def upload_video():
 
 @app.route("/historial")
 def historial():
-    registros = obtener_historial()
+    registros = obtener_historial(session["usuario_id"])
     entradas = [
         {"registro": registro, "lineas": clasificar_lineas(registro["recomendacion"])}
         for registro in registros
