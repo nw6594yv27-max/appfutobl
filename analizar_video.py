@@ -52,7 +52,13 @@ import cv2
 import mediapipe as mp
 
 from angulos import calcular_angulo
-from analisis import analizar_chut, analizar_pase, analizar_control
+from analisis import (
+    analizar_chut,
+    analizar_pase,
+    analizar_control,
+    analizar_regate,
+    analizar_saque_banda,
+)
 
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmark = mp.tasks.vision.PoseLandmark
@@ -66,6 +72,8 @@ RUTA_MODELO = os.path.join(CARPETA_SCRIPT, "modelos", "pose_landmarker_lite.task
 RUTA_VIDEO_CHUT = os.path.join(CARPETA_SCRIPT, "videos", "chut1.mov")
 RUTA_VIDEO_PASE = os.path.join(CARPETA_SCRIPT, "videos", "pase1.mov")
 RUTA_VIDEO_CONTROL = os.path.join(CARPETA_SCRIPT, "videos", "control1.mov")
+RUTA_VIDEO_REGATE = os.path.join(CARPETA_SCRIPT, "videos", "regate1.mov")
+RUTA_VIDEO_SAQUE_BANDA = os.path.join(CARPETA_SCRIPT, "videos", "saque_banda1.mov")
 
 opciones = PoseLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=RUTA_MODELO),
@@ -190,6 +198,25 @@ def angulo_tobillo_derecho(landmarks_persona, ancho, alto):
     return calcular_angulo(punto_rodilla, punto_tobillo, punto_punta_pie), True
 
 
+def angulo_codo_derecho(landmarks_persona, ancho, alto):
+    """
+    Hombro-codo-muneca derechos (saque de banda). A diferencia de los demas
+    gestos, este mide el brazo, no la pierna: el saque de banda se ejecuta
+    con las manos, no con el pie. Devuelve (angulo, confiable).
+    """
+    hombro = landmarks_persona[PoseLandmark.RIGHT_SHOULDER.value]
+    codo = landmarks_persona[PoseLandmark.RIGHT_ELBOW.value]
+    muneca = landmarks_persona[PoseLandmark.RIGHT_WRIST.value]
+
+    if not all(landmark_es_confiable(p) for p in (hombro, codo, muneca)):
+        return None, False
+
+    punto_hombro = (hombro.x * ancho, hombro.y * alto)
+    punto_codo = (codo.x * ancho, codo.y * alto)
+    punto_muneca = (muneca.x * ancho, muneca.y * alto)
+    return calcular_angulo(punto_hombro, punto_codo, punto_muneca), True
+
+
 def procesar_video_angulo(ruta_video, tipo_extremo, extraer_angulo):
     """
     Recorre un video entero buscando un unico angulo (el que calcule
@@ -254,6 +281,16 @@ def main():
         RUTA_VIDEO_CONTROL, "maximo", angulo_tobillo_derecho
     )
 
+    print(f"Procesando video de regate: {RUTA_VIDEO_REGATE}")
+    angulo_regate, segundo_regate = procesar_video_angulo(
+        RUTA_VIDEO_REGATE, "minimo", angulo_rodilla_derecha
+    )
+
+    print(f"Procesando video de saque de banda: {RUTA_VIDEO_SAQUE_BANDA}")
+    angulo_codo, segundo_saque_banda = procesar_video_angulo(
+        RUTA_VIDEO_SAQUE_BANDA, "maximo", angulo_codo_derecho
+    )
+
     print("\nVideos procesados.\n")
 
     # Los datos del jugador solo hacen falta una vez, al final, para generar las recomendaciones
@@ -286,6 +323,22 @@ def main():
         print(f"Angulo maximo detectado: {angulo_tobillo:.0f} grados (segundo {segundo_control:.1f} del video)")
         print("Recomendaciones:")
         print(analizar_control(edad, peso, posicion, angulo_tobillo))
+
+    print("\n--- Regate (rodilla de apoyo) ---")
+    if angulo_regate is None:
+        print("No se detecto un momento de gesto valido en el video de regate.")
+    else:
+        print(f"Angulo minimo detectado: {angulo_regate:.0f} grados (segundo {segundo_regate:.1f} del video)")
+        print("Recomendaciones:")
+        print(analizar_regate(edad, peso, posicion, angulo_regate))
+
+    print("\n--- Saque de banda (codo) ---")
+    if angulo_codo is None:
+        print("No se detecto un momento de gesto valido en el video de saque de banda.")
+    else:
+        print(f"Angulo maximo detectado: {angulo_codo:.0f} grados (segundo {segundo_saque_banda:.1f} del video)")
+        print("Recomendaciones:")
+        print(analizar_saque_banda(edad, peso, posicion, angulo_codo))
 
 
 if __name__ == "__main__":

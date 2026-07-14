@@ -24,6 +24,18 @@ Nota sobre el control: el angulo de tobillo se mide entre la espinilla
 vertice, usando la misma pierna derecha que en el chut (simplificacion:
 se asume que tambien controla con el pie dominante).
 
+Nota sobre el regate: se reutiliza el mismo angulo de rodilla derecha que
+el chut (cadera-rodilla-tobillo), pero interpretado de forma distinta: no
+buscamos el instante de golpeo sino el de un cambio de direccion, donde
+interesa que la rodilla de apoyo este suficientemente flexionada para
+mantener el equilibrio y proteger el balon.
+
+Nota sobre el saque de banda: a diferencia de los demas gestos, este se
+ejecuta con las manos, no con el pie, asi que el angulo relevante deja de
+ser de la pierna y pasa a ser del brazo lanzador (hombro-codo-muneca
+derechos). Se busca el instante de mayor extension del codo, que es cuando
+se suelta el balon.
+
 Controles:
   - Barra espaciadora: captura el angulo de rodilla del momento y muestra en
     la terminal la recomendacion de coaching completa para un chut.
@@ -31,6 +43,10 @@ Controles:
     de coaching completa para un pase.
   - c: captura el angulo de tobillo y muestra la recomendacion de coaching
     completa para un control de balon.
+  - r: captura el angulo de rodilla del momento (mismo dato que el chut) y
+    muestra la recomendacion de coaching completa para un regate.
+  - b: captura el angulo de codo del momento y muestra la recomendacion de
+    coaching completa para un saque de banda.
   - q: sale del programa.
 """
 
@@ -41,7 +57,13 @@ import cv2
 import mediapipe as mp
 
 from angulos import calcular_angulo
-from analisis import analizar_chut, analizar_pase, analizar_control
+from analisis import (
+    analizar_chut,
+    analizar_pase,
+    analizar_control,
+    analizar_regate,
+    analizar_saque_banda,
+)
 
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmark = mp.tasks.vision.PoseLandmark
@@ -99,6 +121,7 @@ else:
             angulo_rodilla_actual = None
             angulo_pie_apoyo_actual = None
             angulo_tobillo_actual = None
+            angulo_codo_actual = None
 
             for landmarks_persona in resultado.pose_landmarks:
                 drawing_utils.draw_landmarks(frame, landmarks_persona, POSE_CONNECTIONS)
@@ -153,7 +176,27 @@ else:
                 cv2.putText(frame, texto_tobillo, posicion_texto_tobillo, cv2.FONT_HERSHEY_SIMPLEX,
                             0.8, (0, 165, 255), 2)
 
-            cv2.imshow("Prueba MediaPipe - espacio: chut, p: pase, c: control, q: salir", frame)
+                # Codo (brazo derecho, saque de banda): hombro-codo-muneca.
+                # A diferencia de los angulos anteriores, este es del brazo, no de la pierna.
+                hombro = landmarks_persona[PoseLandmark.RIGHT_SHOULDER.value]
+                codo = landmarks_persona[PoseLandmark.RIGHT_ELBOW.value]
+                muneca = landmarks_persona[PoseLandmark.RIGHT_WRIST.value]
+
+                punto_hombro = (hombro.x * ancho, hombro.y * alto)
+                punto_codo = (codo.x * ancho, codo.y * alto)
+                punto_muneca = (muneca.x * ancho, muneca.y * alto)
+
+                angulo_codo_actual = calcular_angulo(punto_hombro, punto_codo, punto_muneca)
+
+                texto_codo = f"Codo: {angulo_codo_actual:.0f} grados"
+                posicion_texto_codo = (int(punto_codo[0]) + 10, int(punto_codo[1]))
+                cv2.putText(frame, texto_codo, posicion_texto_codo, cv2.FONT_HERSHEY_SIMPLEX,
+                            0.8, (255, 0, 255), 2)
+
+            cv2.imshow(
+                "Prueba MediaPipe - espacio: chut, p: pase, c: control, r: regate, b: saque de banda, q: salir",
+                frame,
+            )
 
             # Esperamos 1 milisegundo por una tecla y guardamos cual fue
             tecla = cv2.waitKey(1) & 0xFF
@@ -182,6 +225,22 @@ else:
                 else:
                     recomendacion = analizar_control(edad, peso, posicion, angulo_tobillo_actual)
                     print(f"\n--- Angulo de tobillo capturado: {angulo_tobillo_actual:.0f} grados ---")
+                    print("Recomendaciones:")
+                    print(recomendacion)
+            elif tecla == ord("r"):
+                if angulo_rodilla_actual is None:
+                    print("\nNo se detecta a ninguna persona ahora mismo, no se puede analizar el regate.")
+                else:
+                    recomendacion = analizar_regate(edad, peso, posicion, angulo_rodilla_actual)
+                    print(f"\n--- Angulo de rodilla de apoyo capturado: {angulo_rodilla_actual:.0f} grados ---")
+                    print("Recomendaciones:")
+                    print(recomendacion)
+            elif tecla == ord("b"):
+                if angulo_codo_actual is None:
+                    print("\nNo se detecta a ninguna persona ahora mismo, no se puede analizar el saque de banda.")
+                else:
+                    recomendacion = analizar_saque_banda(edad, peso, posicion, angulo_codo_actual)
+                    print(f"\n--- Angulo de codo capturado: {angulo_codo_actual:.0f} grados ---")
                     print("Recomendaciones:")
                     print(recomendacion)
 

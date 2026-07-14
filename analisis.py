@@ -228,11 +228,157 @@ def analizar_control(edad, peso, posicion, angulo_tobillo):
     return "\n".join(recomendaciones)
 
 
+def rango_ideal_rodilla_regate_por_edad(edad):
+    """
+    Devuelve el rango de angulo de rodilla (en grados) considerado
+    razonable para la pierna de apoyo al ejecutar un cambio de direccion
+    (regate), segun la edad del jugador.
+
+    A diferencia del chut (donde se busca extension para potencia), aqui
+    interesa una flexion suficiente para bajar el centro de gravedad y
+    mantener el equilibrio y el control del balon durante el cambio de
+    direccion.
+    """
+    if edad <= 9:
+        return (90, 120)
+    elif edad <= 13:
+        return (95, 125)
+    else:
+        return (100, 130)
+
+
+def analizar_regate(edad, peso, posicion, angulo_rodilla):
+    """
+    Analiza un regate (cambio de direccion con el balon) y devuelve una
+    recomendacion en texto.
+
+    Parametros:
+      edad: edad del jugador en anios (numero)
+      peso: peso del jugador en kg (numero)
+      posicion: posicion en el campo, por ejemplo "delantero", "centrocampista", "defensa", "portero"
+      angulo_rodilla: angulo de la rodilla de la pierna de apoyo durante el
+        cambio de direccion, en grados
+
+    Devuelve:
+      Un texto (string) con la recomendacion.
+    """
+    angulo_min, angulo_max = rango_ideal_rodilla_regate_por_edad(edad)
+
+    recomendaciones = []
+
+    # 1. Comprobamos el angulo de rodilla contra el rango ideal para su edad
+    if angulo_rodilla < angulo_min:
+        recomendaciones.append(
+            f"La rodilla esta demasiado flexionada ({angulo_rodilla:.0f} grados) durante el cambio de direccion. "
+            f"Para su edad se espera algo entre {angulo_min} y {angulo_max} grados. "
+            "Sugerencia: no bajar tanto el centro de gravedad para no perder velocidad de reaccion en el siguiente apoyo."
+        )
+    elif angulo_rodilla > angulo_max:
+        recomendaciones.append(
+            f"La rodilla esta demasiado extendida ({angulo_rodilla:.0f} grados) para su edad "
+            f"(rango esperado {angulo_min}-{angulo_max} grados) durante el cambio de direccion. "
+            "Sugerencia: flexionar mas la rodilla de apoyo para ganar equilibrio y proteger mejor el balon."
+        )
+    else:
+        recomendaciones.append(
+            f"El angulo de rodilla de apoyo ({angulo_rodilla:.0f} grados) esta dentro del rango esperado "
+            f"para su edad ({angulo_min}-{angulo_max} grados). Buen fundamento tecnico en este aspecto."
+        )
+
+    # 2. Un par de reglas simples extra relacionadas con la posicion
+    if posicion.lower() == "delantero":
+        recomendaciones.append(
+            "Como delantero, un buen regate cerca del area puede generar ocasiones claras de gol; "
+            "conviene trabajar este gesto en espacios reducidos."
+        )
+    elif posicion.lower() == "centrocampista":
+        recomendaciones.append(
+            "Como centrocampista, el regate ayuda a superar la presion rival y progresar el balon en zonas de mucho trafico."
+        )
+
+    # Unimos todas las recomendaciones en un solo texto, una por linea
+    return "\n".join(recomendaciones)
+
+
+def rango_ideal_codo_saque_banda_por_edad(edad):
+    """
+    Devuelve el rango de angulo de codo (en grados) considerado razonable
+    en el instante de soltar el balon en un saque de banda, segun la edad
+    del jugador.
+
+    El angulo se mide entre el hombro, el codo y la muneca del brazo
+    lanzador. 180 grados = brazo completamente extendido. Un saque de
+    banda legal y potente requiere llevar el balon con ambos brazos bien
+    extendidos por encima de la cabeza antes de soltarlo.
+    """
+    if edad <= 9:
+        return (135, 180)
+    elif edad <= 13:
+        return (150, 180)
+    else:
+        return (160, 180)
+
+
+def analizar_saque_banda(edad, peso, posicion, angulo_codo):
+    """
+    Analiza un saque de banda (gesto con las manos, no con el pie) y
+    devuelve una recomendacion en texto.
+
+    Parametros:
+      edad: edad del jugador en anios (numero)
+      peso: peso del jugador en kg (numero)
+      posicion: posicion en el campo, por ejemplo "delantero", "centrocampista", "defensa", "portero"
+      angulo_codo: angulo del codo del brazo lanzador en el momento de
+        soltar el balon, en grados (ver rango_ideal_codo_saque_banda_por_edad).
+
+    Devuelve:
+      Un texto (string) con la recomendacion.
+    """
+    angulo_min, angulo_max = rango_ideal_codo_saque_banda_por_edad(edad)
+
+    recomendaciones = []
+
+    # 1. Comprobamos el angulo de codo contra el rango ideal para su edad
+    if angulo_codo < angulo_min:
+        recomendaciones.append(
+            f"El codo esta demasiado flexionado en el momento de soltar el balon ({angulo_codo:.0f} grados). "
+            f"Para su edad se espera al menos {angulo_min} grados de extension. "
+            "Sugerencia: llevar el balon bien atras y por encima de la cabeza, y extender completamente ambos "
+            "brazos antes de soltarlo, para ganar potencia y evitar una posible falta por saque incompleto."
+        )
+    elif angulo_codo > angulo_max:
+        recomendaciones.append(
+            f"El codo supera el rango tipico de extension para su edad ({angulo_codo:.0f} grados, "
+            f"rango esperado {angulo_min}-{angulo_max} grados). "
+            "Sugerencia: revisar que no se este forzando la articulacion del codo al final del lanzamiento."
+        )
+    else:
+        recomendaciones.append(
+            f"El codo alcanza una buena extension al soltar el balon ({angulo_codo:.0f} grados), "
+            f"dentro del rango esperado para su edad ({angulo_min}-{angulo_max} grados). Buen fundamento tecnico en este aspecto."
+        )
+
+    # 2. Un par de reglas simples extra relacionadas con la posicion
+    if posicion.lower() == "portero":
+        recomendaciones.append(
+            "Como portero, no suele encargarse de los saques de banda; este analisis es mas util "
+            "para el resto de jugadores de campo."
+        )
+    elif posicion.lower() == "defensa":
+        recomendaciones.append(
+            "Como defensa, un saque de banda largo y bien ejecutado puede ser una forma rapida "
+            "de progresar el balon desde zonas cercanas a su propia area."
+        )
+
+    # Unimos todas las recomendaciones en un solo texto, una por linea
+    return "\n".join(recomendaciones)
+
+
 def main():
     # 1. Preguntamos que gesto se quiere analizar
-    gesto = input("Que gesto quieres analizar? (chut / pase / control): ").strip().lower()
+    gesto = input("Que gesto quieres analizar? (chut / pase / control / regate / saque_banda): ").strip().lower()
 
-    # 2. Pedimos los datos comunes a los tres gestos
+    # 2. Pedimos los datos comunes a todos los gestos
     edad = int(input("Edad del jugador (anios): "))
     peso = float(input("Peso del jugador (kg): "))
     posicion = input("Posicion en el campo (delantero/centrocampista/defensa/portero): ").strip()
@@ -250,8 +396,16 @@ def main():
         angulo = float(input("Angulo de tobillo al controlar el balon (grados): "))
         recomendacion = analizar_control(edad, peso, posicion, angulo)
 
+    elif gesto == "regate":
+        angulo = float(input("Angulo de rodilla de apoyo durante el cambio de direccion (grados): "))
+        recomendacion = analizar_regate(edad, peso, posicion, angulo)
+
+    elif gesto == "saque_banda":
+        angulo = float(input("Angulo de codo al soltar el balon en el saque de banda (grados): "))
+        recomendacion = analizar_saque_banda(edad, peso, posicion, angulo)
+
     else:
-        print("Gesto no reconocido. Escribe: chut, pase o control.")
+        print("Gesto no reconocido. Escribe: chut, pase, control, regate o saque_banda.")
         return
 
     # 4. Mostramos el resultado

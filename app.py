@@ -4,12 +4,19 @@ import time
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 
-from analisis import analizar_chut, analizar_pase, analizar_control
+from analisis import (
+    analizar_chut,
+    analizar_pase,
+    analizar_control,
+    analizar_regate,
+    analizar_saque_banda,
+)
 from analizar_video import (
     procesar_video_angulo,
     angulo_rodilla_derecha,
     angulo_pie_apoyo_izquierdo,
     angulo_tobillo_derecho,
+    angulo_codo_derecho,
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -49,6 +56,22 @@ GESTOS = {
         "extraer_angulo": angulo_tobillo_derecho,
         "analizar": analizar_control,
     },
+    "regate": {
+        "etiqueta": "Regate",
+        "icono": "🔀",
+        "etiqueta_angulo": "Angulo de rodilla de apoyo",
+        "tipo_extremo": "minimo",
+        "extraer_angulo": angulo_rodilla_derecha,
+        "analizar": analizar_regate,
+    },
+    "saque_banda": {
+        "etiqueta": "Saque de banda",
+        "icono": "🤾",
+        "etiqueta_angulo": "Angulo de codo (extension al soltar)",
+        "tipo_extremo": "maximo",
+        "extraer_angulo": angulo_codo_derecho,
+        "analizar": analizar_saque_banda,
+    },
 }
 
 # Palabras clave que usa analisis.py en cada linea de recomendacion, para poder
@@ -84,7 +107,7 @@ def index():
 def upload_video():
     gesto = request.form.get("gesto", "")
     if gesto not in GESTOS:
-        return "Gesto no reconocido. Elige chut, pase o control.", 400
+        return "Gesto no reconocido. Elige chut, pase, control, regate o saque_banda.", 400
 
     try:
         edad = int(request.form.get("edad", ""))
