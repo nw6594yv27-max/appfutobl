@@ -3,8 +3,9 @@ __pycache__/
 *.pyc
 .DS_Store
 
-# Modelo de MediaPipe (descargable de nuevo) y videos de prueba (pesados / datos personales)
-modelos/
+# Videos de prueba (pesados / datos personales). El modelo de MediaPipe
+# (modelos/) SI se versiona, para que este disponible en Render sin depender
+# de una descarga durante el build.
 videos/
 uploads/
 
